@@ -41,7 +41,8 @@
 /* HAL */
 #include "boards.h"
 #include "simple_hal.h"
-#include "app_timer.h"
+//#include "app_timer.h"
+//#include "mbed.h"
 
 /* Core */
 #include "nrf_mesh_config_core.h"
@@ -237,7 +238,7 @@ static void initialize(void)
     __LOG_INIT(LOG_SRC_APP | LOG_SRC_ACCESS | LOG_SRC_BEARER, LOG_LEVEL_INFO, LOG_CALLBACK_DEFAULT);
     __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "----- BLE Mesh Light Switch Server Demo -----\n");
 
-    ERROR_CHECK(app_timer_init());
+    //ERROR_CHECK(app_timer_init());
     hal_leds_init();
 
 #if BUTTON_BOARD
