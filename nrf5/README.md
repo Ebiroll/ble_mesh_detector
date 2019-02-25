@@ -1,6 +1,10 @@
 
 ![Mesh network example](img/mesh.svg "Mesh network example")
 
+Also look here.
+https://github.com/NordicPlayground/nRF51-ble-bcast-mesh
+
+https://github.com/ARMmbed/mbed-os/tree/feature-nrf52-sdk15/features/FEATURE_BLE
 
 1. Download the SDK and put it in the sdk subdirectory.
 https://www.nordicsemi.com/Software-and-Tools/Software/nRF5-SDK-for-Mesh/Download#infotabs
