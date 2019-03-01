@@ -150,8 +150,24 @@ static void nrf52_soc_realize(DeviceState *dev_soc, Error **errp)
     memory_region_add_subregion_overlap(&s->container, NRF52_FICR_BASE, mr, 0);
     mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->nvm), 2);
     memory_region_add_subregion_overlap(&s->container, NRF52_UICR_BASE, mr, 0);
-    mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->nvm), 3);
-    memory_region_add_subregion_overlap(&s->container, NRF52_FLASH_BASE, mr, 0);
+    MemoryRegion *ram;
+        ram = g_malloc(sizeof(*ram));
+    memset(ram,0,sizeof(*ram));
+    MemoryRegion *system_memory = get_system_memory();
+
+    // memory_region_init_ram(ram, NULL, "iram0", 0x1fffffff,  // 00000
+    //                       &error_abort);
+    //memory_region_init_ram(ram, NULL, "iram0", 0x20000000,  // 00000
+    //                       &error_abort);
+
+    memory_region_init_ram_nomigrate(ram, NULL, "nrf52.fakeram", 0x20000000,  // 00000
+                           &error_abort);
+
+    memory_region_add_subregion(system_memory, 0x0, ram);
+
+
+    //mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&s->nvm), 3);
+    //memory_region_add_subregion_overlap(&s->container, NRF52_FLASH_BASE, mr, 0);
 
     /* GPIO */
     object_property_set_bool(OBJECT(&s->gpio), true, "realized", &err);
@@ -190,8 +206,8 @@ static void nrf52_soc_realize(DeviceState *dev_soc, Error **errp)
 
     create_unimplemented_device("NRF52_soc.io", NRF52_IOMEM_BASE,
                                 NRF52_IOMEM_SIZE);
-    create_unimplemented_device("NRF52_soc.private",
-                                NRF52_PRIVATE_BASE, NRF52_PRIVATE_SIZE);
+    //create_unimplemented_device("NRF52_soc.private",
+    //                            NRF52_PRIVATE_BASE, NRF52_PRIVATE_SIZE);
 }
 
 static void nrf52_soc_init(Object *obj)
@@ -205,7 +221,7 @@ static void nrf52_soc_init(Object *obj)
 
     memory_region_init(&s->container, obj, "nrf52-container", UINT64_MAX);
 
-    sysbus_init_child_obj(OBJECT(s), "armv7", OBJECT(&s->cpu), sizeof(s->cpu),
+    sysbus_init_child_obj(OBJECT(s), "armv7m4", OBJECT(&s->cpu), sizeof(s->cpu),
                           TYPE_ARMV7M);
 
 

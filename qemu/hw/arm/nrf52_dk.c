@@ -18,6 +18,9 @@
 #include "hw/arm/nrf52_soc.h"
 #include "hw/arm/nrf52.h"
 #include "hw/i2c/microbit_i2c.h"
+#include "elf.h"
+#include "hw/loader.h"
+
 
 typedef struct {
     MachineState parent;
@@ -30,6 +33,20 @@ typedef struct {
 
 #define NRF52_MACHINE(obj) \
     OBJECT_CHECK(Nrf52MachineState, obj, TYPE_NRF52_MACHINE)
+
+
+#define FLASH_ADDR_START (0x08000000)
+
+// We try this mapping to get us started
+static uint64_t translate_address(void *opaque, uint64_t from_addr)
+{
+    printf("MAP %" PRIx64 " \n",from_addr);
+
+    if (from_addr == FLASH_ADDR_START) {
+        return 0x00000000;
+    }
+    return from_addr;
+}
 
 static void nrf52_init(MachineState *machine)
 {
@@ -59,9 +76,49 @@ static void nrf52_init(MachineState *machine)
     mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c), 0);
     memory_region_add_subregion_overlap(&s->nrf52.container, NRF52_TWI_BASE,
                                         mr, -1);
+/*
+    {
+        MemoryRegion *hack = g_new(MemoryRegion, 1);
 
-    armv7m_load_kernel(ARM_CPU(&s->nrf52.cpu)/*ARM_CPU(first_cpu)*/, machine->kernel_filename,
-                       NRF52_SOC(soc)->flash_size);
+
+        // Hack to map an additional page of ram at the top of the address
+        //space.  This stops qemu complaining about executing code outside RAM
+        //when returning from an exception. 
+        memory_region_init_ram(hack, NULL, "armv7m.hack", 0x1000, &error_fatal);
+        vmstate_register_ram_global(hack);
+        memory_region_add_subregion(system_memory, 0xfffff000, hack);
+
+    }
+    */
+
+
+
+
+    uint64_t elf_entry;
+    uint64_t elf_lowaddr;
+    // ARM_CPU(first_cpu)
+    int success = load_elf(machine->kernel_filename, NULL, translate_address, ARM_CPU(s->nrf52.cpu.cpu),
+            &elf_entry, &elf_lowaddr, NULL, 0 , EM_ARM, 0, 0);
+
+ // https://electronut.in/nrf52-baremetal/
+    if (success>0) {
+        printf("start addr %" PRIx64 "\n",elf_entry); 
+        printf("low addr %" PRIx64 "\n",elf_lowaddr); 
+
+        //s->nrf52.cpu->env.pc=elf_entry;
+        //elf_lowaddr= NRF52_SRAM_BASE+64*1024;
+        elf_lowaddr=0x20002000;
+        cpu_physical_memory_write(0, &elf_lowaddr, 4 );
+        cpu_physical_memory_write(4, &elf_entry, 4 );
+    }
+    {
+        ARMCPU *cpu = ARM_CPU(s->nrf52.cpu.cpu);
+
+        cpu_reset(CPU(cpu));
+    }
+
+    //armv7m_load_kernel(ARM_CPU(&s->nrf52.cpu)/*ARM_CPU(first_cpu)*/, machine->kernel_filename,
+    //                   NRF52_SOC(soc)->flash_size);
 }
 
 static void nrf52_machine_class_init(ObjectClass *oc, void *data)
@@ -84,5 +141,59 @@ static void microbit_machine_init(void)
 {
     type_register_static(&microbit_info);
 }
+
+#if 0
+void stm32f4xx_init(
+            ram_addr_t flash_size,        /* in KBytes */
+            ram_addr_t ram_size,          /* in KBytes */
+            const char *kernel_filename,
+            Stm32Gpio **stm32_gpio,
+            const uint32_t *gpio_idr_masks,
+            Stm32Uart **stm32_uart,
+            Stm32Timer **stm32_timer,
+            DeviceState **stm32_rtc,
+            uint32_t osc_freq,
+            uint32_t osc32_freq,
+            struct stm32f4xx *stm,
+            ARMCPU **cpu)
+{
+    MemoryRegion *address_space_mem = get_system_memory();
+    DriveInfo *dinfo;
+    DeviceState *nvic;
+    int i;
+
+    Object *stm32_container = container_get(qdev_get_machine(), "/stm32");
+
+    nvic = armv7m_translated_init(
+                stm32_container,          /* parent */
+                address_space_mem,        /* address space memory */
+                flash_size * 1024,        /* flash size in bytes */
+                ram_size * 1024,          /* sram size in bytes */
+                0,                        /* default number of irqs */
+                kernel_filename,          /* kernel filename */
+                kernel_load_translate_fn, /* kernel translate address function */
+                NULL,                     /* translate  function opaque argument */
+                "cortex-m4",              /* cpu model */
+                cpu);                     /* Returned cpu instance */
+
+    qdev_connect_gpio_out_named(nvic, "SYSRESETREQ", 0,
+                                qemu_allocate_irq(&do_sys_reset, NULL, 0));
+
+
+{
+ MemoryRegion *hack = g_new(MemoryRegion, 1);
+
+
+
+    /* Hack to map an additional page of ram at the top of the address
+       space.  This stops qemu complaining about executing code outside RAM
+       when returning from an exception.  */
+    memory_region_init_ram(hack, NULL, "armv7m.hack", 0x1000, &error_fatal);
+    vmstate_register_ram_global(hack);
+    memory_region_add_subregion(system_memory, 0xfffff000, hack);
+
+}
+
+#endif
 
 type_init(microbit_machine_init);
