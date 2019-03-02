@@ -1,7 +1,6 @@
 /*
  * Nordic Semiconductor nRF52 SoC
  * 
- * http://infocenter.nordicsemi.com/pdf/nRF51_RM_v3.0.1.pdf
  * 
  * https://www.nordicsemi.com/-/media/DocLib/Other/Product_Spec/nRF52832PSv14.pdf* 
  *  http://infocenter.nordicsemi.com/pdf/nRF51_RM_v3.0.1.pdf

@@ -1,6 +1,5 @@
 /*
- * BBC micro:bit machine
- * http://tech.microbit.org/hardware/
+ * nrf52_dk board
  *
  * Copyright 2018 Joel Stanley <joel@jms.id.au>
  *
@@ -47,6 +46,67 @@ static uint64_t translate_address(void *opaque, uint64_t from_addr)
     }
     return from_addr;
 }
+/*
+3d00 0008
+*/
+static void init_mbr(void);
+
+static void init_mbr(void) {
+// Lowest bit indicates thumb instruction..
+   unsigned int  dummy_fn=0x0010001;
+   //unsigned int service_fn=0x020001;
+   unsigned int i;
+
+   for (i=0;i<20;i++) {
+      cpu_physical_memory_write(i*4, &dummy_fn, 4 );
+   }
+
+    //cpu_physical_memory_write(11*4, &service_fn, 4 );
+
+/* dummy_fn
+   0:	b580      	push	{r7, lr}
+   2:	af00      	add	r7, sp, #0
+   4:	46c0      	nop			; (mov r8, r8)
+   6:	46bd      	mov	sp, r7
+   8:	bc80      	pop	{r7}
+   a:	bc01      	pop	{r0}
+   c:	4700      	bx	r0
+*/
+
+
+    dummy_fn=0x0010000;
+    i=dummy_fn;
+    unsigned int prog=0xb580;
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0xaf00;
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+
+    //  22:	2000      	movs	r0, #0
+    //prog=0x2000;
+
+    //  4:	46c0      	nop			; (mov r8, r8)
+    prog=0x46c0;
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0x46bd;
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0xbc80;
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0xbc01;
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0x4700;
+    cpu_physical_memory_write(i, &prog, 2 );
+
+
+    //prog=0xc046bd46;
+
+
+}
 
 static void nrf52_init(MachineState *machine)
 {
@@ -76,7 +136,6 @@ static void nrf52_init(MachineState *machine)
     mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(i2c), 0);
     memory_region_add_subregion_overlap(&s->nrf52.container, NRF52_TWI_BASE,
                                         mr, -1);
-/*
     {
         MemoryRegion *hack = g_new(MemoryRegion, 1);
 
@@ -85,11 +144,11 @@ static void nrf52_init(MachineState *machine)
         //space.  This stops qemu complaining about executing code outside RAM
         //when returning from an exception. 
         memory_region_init_ram(hack, NULL, "armv7m.hack", 0x1000, &error_fatal);
-        vmstate_register_ram_global(hack);
-        memory_region_add_subregion(system_memory, 0xfffff000, hack);
+        //vmstate_register_ram_global(hack);
+        //memory_region_add_subregion(system_memory, 0xfffff000, hack);
+       memory_region_add_subregion_overlap(&s->nrf52.container, 0xfffff000, hack,-1);
 
     }
-    */
 
 
 
@@ -105,6 +164,8 @@ static void nrf52_init(MachineState *machine)
         printf("start addr %" PRIx64 "\n",elf_entry); 
         printf("low addr %" PRIx64 "\n",elf_lowaddr); 
 
+
+        init_mbr();
         //s->nrf52.cpu->env.pc=elf_entry;
         //elf_lowaddr= NRF52_SRAM_BASE+64*1024;
         elf_lowaddr=0x20002000;

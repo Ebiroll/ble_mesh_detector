@@ -1,7 +1,23 @@
 # Qemu information
 
-This directory contains code for patching qemu to be able to load and run some of the mesh code in order to 
-understand the startup and initialization code.
+This directory contains code for patching qemu to be able to load and run some of the mesh code in order to understand the startup and initialization code of the ble mesh.
+
+The service calls does not return valid return values so when debugging you have to set them manually after the return.
+
+```
+(gdb) b  ble_init()
+
+uint32_t err_code = nrf_sdh_enable_request();
+APP_ERROR_CHECK(err_code);   
+(gdb) n
+(gdb) s err_code=0
+
+```
+
+Dont forget to patch hw/arm/Makefile.objs in the qemu tree.
+obj-y += nrf52_soc.o nrf52_dk.o
+In order to compile qemu
+
 
 http://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk52.v0.9.0%2Fbledfu_memory.html
 
@@ -12,10 +28,22 @@ Thanks to this project.
 https://douzepouze.github.io/gsoc18-qemu/
 
 
+# Bare metal
+
+Some bare metal information.
+
+https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/
+
+https://github.com/andenore/NordicSnippets
+
+
+
+
 # Results
 
 ## Sensor
 
+```
 ~/nrf_qemu/arm-softmmu/qemu-system-arm -d unimp,guest_errors -M nrf52_dk -kernel detector_sensor_nrf52832_xxAA_s132_6.1.0.elf  -s -S
 
 arm-none-eabi-gdb  detector_sensor_nrf52832_xxAA_s132_6.1.0.elf -ex ' target remote:1234'
@@ -23,6 +51,7 @@ arm-none-eabi-gdb  detector_sensor_nrf52832_xxAA_s132_6.1.0.elf -ex ' target rem
 (gdb) b app_timer_init()
 
 (gdb) b ble_stack_init()
+```
 
 See how this is handled.
 Status = SEGGER_RTT_WriteNoLock(BufferIndex, pBuffer, NumBytes); 
@@ -160,4 +189,4 @@ address-space: cpu-memory-0
 $1 = 0x42c79
 
 
-
+https://aykevl.nl/2018/01/mbr-softdevice-internals
