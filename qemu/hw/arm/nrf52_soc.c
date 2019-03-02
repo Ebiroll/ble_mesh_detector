@@ -205,8 +205,8 @@ static void nrf52_soc_realize(DeviceState *dev_soc, Error **errp)
 
     create_unimplemented_device("NRF52_soc.io", NRF52_IOMEM_BASE,
                                 NRF52_IOMEM_SIZE);
-    //create_unimplemented_device("NRF52_soc.private",
-    //                            NRF52_PRIVATE_BASE, NRF52_PRIVATE_SIZE);
+    create_unimplemented_device("NRF52_soc.private",
+                                NRF52_PRIVATE_BASE, NRF52_PRIVATE_SIZE);
 }
 
 static void nrf52_soc_init(Object *obj)
