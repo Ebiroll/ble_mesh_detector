@@ -54,14 +54,13 @@ static void init_mbr(void);
 static void init_mbr(void) {
 // Lowest bit indicates thumb instruction..
    unsigned int  dummy_fn=0x0010001;
-   //unsigned int service_fn=0x020001;
+   unsigned int service_fn=0x020001;
    unsigned int i;
 
    for (i=0;i<20;i++) {
       cpu_physical_memory_write(i*4, &dummy_fn, 4 );
    }
 
-    //cpu_physical_memory_write(11*4, &service_fn, 4 );
 
 /* dummy_fn
    0:	b580      	push	{r7, lr}
@@ -101,6 +100,54 @@ static void init_mbr(void) {
     i+=2;
     prog=0x4700;
     cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+
+
+    // Put 
+    //service_fn=4*((i+8)/4);
+    service_fn=0x0010040;
+    i=service_fn;
+
+    printf("servie function %u\n",service_fn); 
+
+
+    service_fn=service_fn+1;  // Thumbs up 
+
+    prog=0xb580;   // push	{r7, lr}
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0xaf00;  // add	r7, sp, #0
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+
+    prog=0x2000;      	// movs	r0, #0
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+
+    // This stores r0 to value
+    prog=0x60b8;      	// str	r0, [r7, #8]
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+
+    prog=0x46c0;    // nop 
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0x46bd;   // mov	sp, r7
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0xbc80;  // pop	{r7}
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0xbc01;  // pop	{r0}
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+    prog=0x4700;  // bx	r0
+    cpu_physical_memory_write(i, &prog, 2 );
+    i+=2;
+
+
+    // This is the one
+    cpu_physical_memory_write(11*4, &service_fn, 4 );
 
 
     //prog=0xc046bd46;

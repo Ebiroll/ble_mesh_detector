@@ -2,6 +2,12 @@
 
 This directory contains code for patching qemu to be able to load and run some of the mesh code in order to understand the startup and initialization code of the ble mesh.
 
+Now it stops here
+(gdb) b softdevices_evt_irq_enable
+(gdb) b __sd_nvic_is_app_accessible_priority
+
+
+This problem is fixed.
 The service calls does not return valid return values so when debugging you have to set them manually after the return.
 
 ```
