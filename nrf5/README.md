@@ -1,6 +1,35 @@
 
 ![Mesh network example](img/mesh.svg "Mesh network example")
 
+# Building with the segger embeded studio
+
+0. Clone his directory
+git clone https://github.com/Ebiroll/ble_mesh_detector
+
+1. Download embedded studio
+https://www.segger.com/downloads/embedded-studio
+
+2. Dowload the nrf SDK for mesh
+https://www.nordicsemi.com/Software-and-Tools/Software/nRF5-SDK-for-Mesh/Download#infotabs
+nrf5SDKforMeshv310src.zip
+
+Put the sdk in the top dir nordic_semi dir.
+
+3. Download the SDK for nrf devices
+https://www.nordicsemi.com/Software-and-Tools/Software/nRF5-SDK/Download#infotabs
+nRF5SDK_15.2.0_94b126 .zip
+
+You should now have the following directories
+
+    ble_mesh_detector/    
+    nRF5_SDK_15.2.0_/  
+    sdk/
+
+Copy the detector example from this directory to the 
+cp -r ble_mesh_detector/nrf5/ sdk/examples/detector
+
+Open the file nordic_semi\sdk\examples\detector\sensor\sensor_nrf52832_xxAA_s132_6_1_0
+
 
 # Building with gcc arms toolchain
 

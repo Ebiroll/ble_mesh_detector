@@ -14,6 +14,11 @@ Here are the mesh specifications.
 
 https://www.bluetooth.com/specifications/mesh-specifications
 
+I recomend that you download the 
+ Android nRF Mesh App
+This could be used for provisioning.
+
+
 # NRF5832
 Some nodes in this example will be based on this  https://www.analoglamb.com/product/nrf52832-bluetooth-module-pins/
 
@@ -44,18 +49,10 @@ The sensors will publish the motion detected event
 All nodes equipped with a led will subscribe to this event.
 
 # Compiling the examples
-As we use somewhat different tools for the different nodes we will try to use platform io whenever possible.
 
-https://platformio.org/
 
-For the nordic semi
-https://docs.platformio.org/en/latest/platforms/nordicnrf52.html
 
-For the esp32
-https://docs.platformio.org/en/latest/boards/espressif32/m5stack-core-esp32.html
 
-    cd exampledir    
-    pio run
 
 
 
