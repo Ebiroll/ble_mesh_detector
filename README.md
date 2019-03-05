@@ -14,9 +14,30 @@ Here are the mesh specifications.
 
 https://www.bluetooth.com/specifications/mesh-specifications
 
-I recomend that you download the 
- Android nRF Mesh App
-This could be used for provisioning.
+I recomend that you download the  Android nRF Mesh App
+This is used for provisioning.
+https://play.google.com/store/apps/details?id=no.nordicsemi.android.nrfmeshprovisioner&hl=en_US
+
+
+
+# Nordic semi uart
+screen /dev/ttyUSB0 115200
+
+Also install Nordic Uart
+https://play.google.com/store/apps/details?id=com.nordicsemi.nrfUARTv2
+
+
+
+# dmesg -w
+
+[10109.799797] usb 2-1.2: New USB device strings: Mfr=0, Product=2, SerialNumber=0
+[10109.799802] usb 2-1.2: Product: USB2.0-Serial
+[10109.912656] usbcore: registered new interface driver ch341
+[10109.912669] usbserial: USB Serial support registered for ch341-uart
+[10109.912690] ch341 2-1.2:1.0: ch341-uart converter detected
+[10109.915573] usb 2-1.2: ch341-uart converter now attached to ttyUSB0
+
+
 
 
 # NRF5832
