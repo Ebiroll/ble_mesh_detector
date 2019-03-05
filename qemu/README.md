@@ -2,6 +2,43 @@
 
 This directory contains code for patching qemu to be able to load and run some of the mesh code in order to understand the startup and initialization code of the ble mesh.
 
+
+# Building qemu
+
+cd ~
+git clone https://github.com/qemu/qemu
+mkdir nrf_qemu
+cd  /mnt/d/nordic_semi/ble_mesh_detector/qemu (this directory)
+./makenrf.sh
+cd ~/qemu
+patch hw/arm/Makefile.objs, add this last
+obj-y += nrf52_soc.o nrf52_dk.o
+cd ../nrf_qemu
+../qemu/configure --target-list=arm-softmmu
+make
+
+## Building under windows 10
+
+Enable the windows subsystem for linux on Windows 10, 
+https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux
+As admin in power shell, 
+```
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+```
+Install ubuntu (i.e. 18.04 LTS) from the app store.
+```
+sudo apt-get update && sudo apt-get upgrade
+sudo  apt-get install build-essential
+sudo apt-get install libpixman-1-0 libpixman-1-dev 
+apt-get install libglib2.0-dev zlib1g-dev
+```
+It should also be possible to build with MSYS2 but performance is not so good.
+As an X-server you can use this one,
+https://sourceforge.net/projects/vcxsrv/
+
+
+
+
 Now it stops here
 (gdb) b softdevices_evt_irq_enable
 (gdb) b __sd_nvic_is_app_accessible_priority
@@ -196,3 +233,18 @@ $1 = 0x42c79
 
 
 https://aykevl.nl/2018/01/mbr-softdevice-internals
+
+
+# Platform io
+It seems like it was not possible to use  As we use somewhat different tools for the different nodes we will try to use platform io whenever possible.
+
+https://platformio.org/
+
+For the nordic semi
+https://docs.platformio.org/en/latest/platforms/nordicnrf52.html
+
+For the esp32
+https://docs.platformio.org/en/latest/boards/espressif32/m5stack-core-esp32.html
+
+    cd exampledir    
+    pio run
