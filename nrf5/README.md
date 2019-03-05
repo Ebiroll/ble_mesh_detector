@@ -86,7 +86,7 @@ Almost all pins on the bottom row are GND except pin 2 (Not connected).
 You might want to connect a 10k ohm pullup to 
 
 Pin | Name  | Colour | Target
------| ------ | -----
+-----| ------ | -----|-----
 1	| Vref  | White     |   NC ( Note 5V or possibly  3.3V  )
 4 	| GND 	| Black 	| 	GND
 7 	| TMS 	| Grey 	 	|   SWDIO
